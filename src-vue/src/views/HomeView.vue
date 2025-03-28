@@ -1,8 +1,6 @@
 <template>
-  <Notice v-show="isVisible"/>
+  <Notice text="후배쿤, 벌써 포기하려는거야?" @click="notice_is_open = !notice_is_open" v-show="notice_is_open"/>
   <div id="panel">
-  
-
     <div id="title">
       <h2>xx님,</h2>
       <h1>날 지켜봐줘!</h1>
@@ -13,7 +11,7 @@
       <Btn text="새로하기"/>
       <Btn text="갤러리"/>
       <Btn text="크레딧"/>
-      <Btn text="나가기"/>
+      <Btn @click="notice_is_open = !notice_is_open" text="나가기"/>
     </div>
 
   </div>
@@ -21,20 +19,23 @@
 
 <script>
 import Btn from '../components/Btn.vue'
+import ActionBtn from '../components/ActionBtn.vue'
 import Notice from '../components/Notice.vue'
 import { ref } from 'vue';
 
 export default{
   components: {
     Btn,
-    Notice
+    Notice,
+    ActionBtn,
   },
-  data(){
+  data()
+  {
     return{
-      notice_is_open: true,
-      btns: ["이어하기", "새로하기", "갤러리", "크레딧", "나가기"],
+      notice_is_open: false,
     }
   }
+
 }
 
   

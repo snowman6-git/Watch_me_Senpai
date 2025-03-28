@@ -5,13 +5,26 @@ defineProps({
     required: true,
   },
 })
-import ActionBtn from './ActionBtn.vue'
+
+// import ActionBtn from './ActionBtn.vue'
+import Btn from './Btn.vue'
+const { invoke } = window.__TAURI__.core;
+
+function close(){
+  invoke("close")
+}
+
 </script>
 
 <template>
   <main id="notice">
-    
     <div id="text">{{ text }}</div>
+    
+    <div id="btn_case">
+      <Btn @click="close" text="미안 선배쿤, 헤어져"/>
+      <Btn text="그럴리가 업자나!!!"/>
+    </div>
+
   </main>
 </template>
 
@@ -24,11 +37,23 @@ import ActionBtn from './ActionBtn.vue'
     backdrop-filter: blur(1rem);
     transition: 0.25s all;
     position: fixed;
-
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 99;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+  }
+  
+  #btn_case{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    margin-bottom: 1rem;
   }
 
   #text{

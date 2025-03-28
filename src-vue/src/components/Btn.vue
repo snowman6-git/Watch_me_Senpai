@@ -18,15 +18,16 @@ defineProps({
   main{
     width: 10rem; height: 2.5rem;
     color: white;
-    border: 0.2rem black solid;
+    /* border: 0.2rem black solid; */
     border-radius: 0.5rem;
     background-color: gray;
     transition: 0.25s all;
   }
 
   main:hover{
-    transform: scale(1.2);
-    background-color: blue;
+    /* transform: scale(1.2); */
+    /* transform: translateY(-1.5rem) */
+    background-color: green;
     /* filter: invert(100%); */
   }
 
