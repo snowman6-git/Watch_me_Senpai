@@ -1,26 +1,47 @@
-// src/main.rs
+use rusqlite::{params, Connection, Result};
 
-use rusqlite::Connection;
+struct DB {
+    conn: Connection,
+}
 
-fn main() -> Result<(), rusqlite::Error> {
-    let conn = Connection::open("test.db")?;
+impl DB {
+    fn connect() -> Result<Self> {
+        let conn = Connection::open("data.db")?;
+        Ok(DB { conn })
+    }
+    
+    fn new_game(&mut self){
+        // self.conn.execute("DROP TABLE player;", []);
 
-    conn.execute("CREATE TABLE IF NOT EXISTS player_data (name TEXT, strength INTEGER, sens INTEGER);", [])?;
-    conn.execute("INSERT INTO player_data (name, strength, sens) VALUES('스노우맨', '3', '4');", [])?;
+        //이유는 모르겠는데 참조 안하는 변수면 앞에 언더바 주라더라 컴파일러 좋긴 좋은듯...
+        //let player_init = self.conn.execute("
+        //help: if this is intentional, prefix it with an underscore: `_player_init`
+        
+        let _player_init = self.conn.execute("
+            CREATE TABLE IF NOT EXISTS player(name TEXT, strength INTEGER, sens INTEGER);
+            INSERT INTO player(strength, sens) VALUES('1', '1');
+        ", []);
 
-    let mut stmt = conn.prepare("SELECT * FROM player_data WHERE name = ?")?;
-    let mut rows = stmt.query([&"스노우맨"])?;
-    if let Some(row) = rows.next()? {
-
-        println!("Name: {}", row);
-
-        let name: String = row.get(0)?;
-        println!("Name: {}", name);
+        // println!("OK!");
+        // self.conn.execute("INSERT INTO player(name) VALUES('스노우맨');", []);
     }
 
-    // let a = conn.execute("SELECT * FROM player_data WHERE = '스노우맨';", [])?;
-    // println!("{}", a);
-
-    // conn.execute("CREATE TABLE IF NOT EXISTS save_love (id INTEGER PRIMARY KEY, name TEXT)", [])?;
-    Ok(())
+    // fn init_save(&self){
+    //     self.conn.execute("", params)
+    // }
+    
+    // fn query(&self, sql: &str) -> Result<(), rusqlite::Error> {
+    //     self.conn.execute(sql, []);   
+    //     Ok(())
+    // }
+    // fn save(&self, sql: &str) -> Result<(), rusqlite::Error> {
+    //     self.conn.execute(sql, []);
+    //     Ok(())
+    // }
 }
+
+fn main() {
+    let db = DB::connect();
+    let _new_game = db.expect("에러!").new_game();
+}
+ 
