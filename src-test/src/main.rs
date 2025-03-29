@@ -6,7 +6,7 @@ struct DB {
 
 impl DB {
     fn connect() -> Result<Self> {
-        let conn = Connection::open("data.db")?;
+        let conn = Connection::open("Data.db")?;
         Ok(DB { conn })
     }
     
@@ -16,7 +16,7 @@ impl DB {
         //이유는 모르겠는데 참조 안하는 변수면 앞에 언더바 주라더라 컴파일러 좋긴 좋은듯...
         //let player_init = self.conn.execute("
         //help: if this is intentional, prefix it with an underscore: `_player_init`
-        
+
         let _player_init = self.conn.execute("
             CREATE TABLE IF NOT EXISTS player(name TEXT, strength INTEGER, sens INTEGER);
             INSERT INTO player(strength, sens) VALUES('1', '1');
