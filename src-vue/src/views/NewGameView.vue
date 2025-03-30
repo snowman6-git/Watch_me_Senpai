@@ -2,19 +2,28 @@
   <main>
     <h1>너의 이름은?</h1>
     <br>
-    <input class="clear_input">
-  </main>
+
+    <input ref="player_name" class="clear_input">
+    <br>
+    <Btn @click="handleClick" text="시작하기!"/>
+
+</main>
 </template>
 
-<script>
+<script lang="ts">
 import Btn from '../components/Btn.vue'
 import ActionBtn from '../components/ActionBtn.vue'
 import Notice from '../components/Notice.vue'
 
 const { invoke } = window.__TAURI__.core;
-invoke("text_input", { text : "스노우맨" }).then((info) => { //어떤 함수를 전달할지 json처럼 잡아줘야한다
+
+function save_name(name: String){
+  invoke("new_save", { name : name }).then((info: any) => {
+
     console.log(info)
-})
+  })
+}
+
 
 export default{
   components: {
@@ -22,12 +31,18 @@ export default{
     Notice,
     ActionBtn,
   },
+
+  methods: {
+    handleClick() {
+      let a = save_name(this.$refs.player_name.value);
+    },
+  },
+
   data()
   {
     return{
     }
   }
-
 }
 </script>
 

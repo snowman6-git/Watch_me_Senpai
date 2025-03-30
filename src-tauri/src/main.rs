@@ -7,7 +7,7 @@ fn main() {
     // dating_with_stupids_lib::run()
     tauri::Builder::default()
     // .invoke_handler(tauri::generate_handler![link])
-    .invoke_handler(tauri::generate_handler![close, text_input])
+    .invoke_handler(tauri::generate_handler![close, new_save, delete_save, list_save])
     .run(tauri::generate_context!())
     .expect("failed to run app");
 }
@@ -18,59 +18,100 @@ fn close() {
     process::exit(0); // 0은 성공적인 종료를 의미합니다. 다른 값을 사용하여 오류를 나타낼 수도 있습니다.
 }
 
-#[tauri::command]
-fn text_input(text: String) {
-    println!("{}", text)
+use rusqlite::{params, Connection, Result};
+use tauri::State;
+
+struct DB {
+    conn: Connection,
 }
 
-// use rusqlite::{params, Connection, Result};
-// struct DB {
-//     conn: Connection,
-// }
+impl DB {
+    fn connect() -> Result<Self> {
+        let conn = Connection::open("Data.db")?;
+        Ok(DB { conn })
+    }
 
-// impl DB {
-//     fn connect() -> Result<Self> {
-//         let conn = Connection::open("Data.db")?;
-//         Ok(DB { conn })
-//     }
+    //나중에 에러처리 하기 , rusqlite::Error
+    fn list_save(&mut self) -> Result<i64> {
+        let mut stmt = self.conn.prepare("SELECT COUNT(*) FROM player")?;
+        let result = stmt.query_row([], |row| {
+            let value: i64 = row.get(0)?;
+            Ok(value)
+        })?;
+        Ok(result)
+    }
 
-//     fn list_save(&mut self) -> Result<bool> {
+    fn delete_save(&mut self){
+        let _delete = self.conn.execute("DROP TABLE player;", []);
+    }
 
-
-//         let mut stmt = self.conn.prepare("SELECT COUNT(*) FROM player")?;
-//         let mut result = stmt.query_row([], |row| row.get(0))?;
-    
-//         println!("{}", result);
-
+    fn new_save(&mut self, name: String) -> bool{
+        let _player_init = self.conn.execute("
+            CREATE TABLE IF NOT EXISTS player(name TEXT NOT NULL, strength INTEGER DEFAULT 1, sens INTEGER DEFAULT 1, is_biru INTEGER DEFAULT 0);
+        ", []);
         
-//         Ok(true)
-//         // Ok(false)
+        match self.conn.execute(
+            if name == "비루" || name == "biru" {
+                "INSERT INTO player(name, strength, sens, is_biru) VALUES(?, 1, 1, 1);"
+            } else {
+                "INSERT INTO player(name, strength, sens, is_biru) VALUES(?, 1, 1, 0);"
+            },
+            [&name]
+        ) {
+            Ok(_) => {
+                println!("플레이어 정보가 성공적으로 삽입되었습니다.");
+                true
+            }
+            Err(e) => {
+                println!("오류 발생: {:?}", e);
+                false
+            }
+         }
+    }
 
-//     }
+}
 
-//     fn delete_save(&mut self){
-//         let _delete = self.conn.execute("DROP TABLE player;", []);
-//     }
-
+#[tauri::command]
+fn list_save() -> Option<i64> {
+    let db = DB::connect();
+    let list_save = db.expect("에러!").list_save();
     
+    match list_save {
+        Ok(value) => Some(value),
+        Err(e) => {
+            println!("에러 발생: {:?}", e);
+            Some(0)
+        }
+    }
+}
 
-//     fn new_save(&mut self, name: String) -> Result<()>{
-//         let _player_init = self.conn.execute("
-//             CREATE TABLE IF NOT EXISTS player(name TEXT, strength INTEGER DEFAULT 1, sens INTEGER DEFAULT 1);
-//         ", []);
-//         let result = self.conn.execute("INSERT INTO player(name, strength, sens) VALUES(?, 1, 1);", [&name])?;
-//         Ok(())
-//     }
-// }
+#[tauri::command]
+fn delete_save(){
+    let db = DB::connect();
+    let _delete = db.expect("에러!").delete_save();
+}
+
+#[tauri::command]
+fn new_save(name: String) -> bool{
+    let db = DB::connect();
+    let save_is = db.expect("에러!").new_save(name);
+    
+    if save_is == true {
+        true
+    } else {
+        false
+    }
+}
+
 
 // #[tauri::command]
-// fn delete_save(){
-//     let db = DB::connect();
-//     let _delete = db.expect("에러!").delete_save();
-// }
-
-// #[tauri::command]
-// fn new_save(name: String){
-//     let db = DB::connect();
-//     let _new_save = db.expect("에러!").new_save(name);
+// fn text_input(text: String) -> bool{
+//     println!("{}", text);
+    
+//     // if text == "비루"{
+        
+//     //     true
+//     // } else{
+//     //     false
+//     // }
 // }

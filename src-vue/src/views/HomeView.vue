@@ -7,28 +7,42 @@
     </div>
 
     <div id="btn_case">
-      <Btn text="이어하기"/>
+      <Btn @click="list_save" text="이어하기"/>
       <Btn @click="$router.push('/newgame')" text="새로하기"/>
       <Btn text="갤러리"/>
       <Btn text="크레딧"/>
+      <Btn @click="delete_save" text="모든 세이브 삭제"/>
       <Btn @click="notice_is_open = !notice_is_open" text="나가기"/>
     </div>
 
   </div>
 </template>
 
-<script>
+<script lang="ts">
+const { invoke } = window.__TAURI__.core
+
 import Btn from '../components/Btn.vue'
 import ActionBtn from '../components/ActionBtn.vue'
 import Notice from '../components/Notice.vue'
-import { ref } from 'vue';
-import router from '@/router';
+
+
 
 export default{
   components: {
     Btn,
     Notice,
     ActionBtn,
+  },
+  methods: {
+    delete_save(){
+      invoke("delete_save")
+    },
+    list_save(){
+      invoke("list_save").then((info: any) => {
+        console.log(info)
+      })
+    }
+
   },
   data()
   {
