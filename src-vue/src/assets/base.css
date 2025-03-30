@@ -30,7 +30,7 @@ html, body, #app{
   -ms-user-select: none; /* IE10+/Edge */
 }
 
-.idpw{
+.clear_input{
   outline: none;
   background: none; 
   text-align: center;
@@ -38,10 +38,10 @@ html, body, #app{
   color: white;
   /* opacity: 50%; */
 }
-.idpw:-webkit-autofill,
-.idpw:-webkit-autofill:hover,
-.idpw:-webkit-autofill:focus,
-.idpw:-webkit-autofill:active {
+.clear_input:-webkit-autofill,
+.clear_input:-webkit-autofill:hover,
+.clear_input:-webkit-autofill:focus,
+.clear_input:-webkit-autofill:active {
   transition: background-color 5000s ease-in-out 0s;
   -webkit-transition: background-color 9999s ease-out;
   -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
