@@ -8,6 +8,7 @@
     "devUrl": "http://localhost:5173",
     "frontendDist": "../src-vue/dist"
   },
+  
   "app": {
     "withGlobalTauri": true,
     "windows": [
@@ -24,6 +25,7 @@
       "csp": null
     }
   },
+  
   "bundle": {
     "active": true,
     "targets": "all",

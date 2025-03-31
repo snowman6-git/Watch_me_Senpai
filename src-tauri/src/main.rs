@@ -1,7 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use std::{process, result};
-use std::error::Error;
+use std::{process};
 
 fn main() {
     // dating_with_stupids_lib::run()
@@ -18,8 +17,7 @@ fn close() {
     process::exit(0); // 0은 성공적인 종료를 의미합니다. 다른 값을 사용하여 오류를 나타낼 수도 있습니다.
 }
 
-use rusqlite::{params, Connection, Result};
-use tauri::State;
+use rusqlite::{Connection, Result};
 
 struct DB {
     conn: Connection,
@@ -66,7 +64,7 @@ impl DB {
                 println!("오류 발생: {:?}", e);
                 false
             }
-         }
+        }
     }
 
 }
@@ -95,23 +93,9 @@ fn delete_save(){
 fn new_save(name: String) -> bool{
     let db = DB::connect();
     let save_is = db.expect("에러!").new_save(name);
-    
     if save_is == true {
         true
     } else {
         false
     }
 }
-
-
-// #[tauri::command]
-// fn text_input(text: String) -> bool{
-//     println!("{}", text);
-    
-//     // if text == "비루"{
-        
-//     //     true
-//     // } else{
-//     //     false
-//     // }
-// }
