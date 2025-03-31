@@ -5,7 +5,8 @@
 
     <input ref="player_name" class="clear_input">
     <br>
-    <Btn @click="handleClick" text="시작하기!"/>
+    <Btn @click="save_name(this.$refs.player_name.value)" text="시작하기!"/>
+     <TextBox :text="message" @click="tbox_is_open = !tbox_is_open" v-show="tbox_is_open"/>
 
 </main>
 </template>
@@ -14,15 +15,9 @@
 import Btn from '../components/Btn.vue'
 import ActionBtn from '../components/ActionBtn.vue'
 import Notice from '../components/Notice.vue'
+import TextBox from '../components/TextBox.vue'
 
 const { invoke } = window.__TAURI__.core;
-
-function save_name(name: String){
-  invoke("new_save", { name : name }).then((info: any) => {
-
-    console.log(info)
-  })
-}
 
 
 export default{
@@ -30,17 +25,31 @@ export default{
     Btn,
     Notice,
     ActionBtn,
+    TextBox
   },
 
   methods: {
-    handleClick() {
-      let a = save_name(this.$refs.player_name.value);
-    },
+    save_name(name: String){
+      invoke("new_save", { name : name }).then((info: any) => {
+        if (info == 406) {
+          this.message = "세상에 벌써 이스터에그를 찾았다니 축하합니다, 보상으로 선물을 드릴테니 집주소를 주세요, 농담아닙니다, 집주소 주세요, 달라고 야 어디가."
+        } if(info == 403) {
+          this.message = "너 누구야"
+        } if (info == 200){
+          this.message = `"${name}"을(를) 사용합니다, 괜찮은가요?`
+        }
+          this.tbox_is_open = true
+          console.log(info)
+      })
+    }
+
   },
 
   data()
   {
     return{
+      tbox_is_open: false,
+      message: ""
     }
   }
 }

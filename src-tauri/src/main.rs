@@ -1,6 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use std::{process};
+use std::{process, result};
 
 fn main() {
     // dating_with_stupids_lib::run()
@@ -17,7 +17,7 @@ fn close() {
     process::exit(0); // 0은 성공적인 종료를 의미합니다. 다른 값을 사용하여 오류를 나타낼 수도 있습니다.
 }
 
-use rusqlite::{Connection, Result};
+use rusqlite::{ffi::Error, Connection, Result};
 
 struct DB {
     conn: Connection,
@@ -43,30 +43,47 @@ impl DB {
         let _delete = self.conn.execute("DROP TABLE player;", []);
     }
 
-    fn new_save(&mut self, name: String) -> bool{
+    fn new_save(&mut self, name: &str) -> Option<i16> {
         let _player_init = self.conn.execute("
             CREATE TABLE IF NOT EXISTS player(name TEXT NOT NULL, strength INTEGER DEFAULT 1, sens INTEGER DEFAULT 1, is_biru INTEGER DEFAULT 0);
         ", []);
-        
-        match self.conn.execute(
-            if name == "비루" || name == "biru" {
-                "INSERT INTO player(name, strength, sens, is_biru) VALUES(?, 1, 1, 1);"
-            } else {
-                "INSERT INTO player(name, strength, sens, is_biru) VALUES(?, 1, 1, 0);"
-            },
-            [&name]
-        ) {
-            Ok(_) => {
-                println!("플레이어 정보가 성공적으로 삽입되었습니다.");
-                true
-            }
-            Err(e) => {
-                println!("오류 발생: {:?}", e);
-                false
-            }
-        }
-    }
 
+        let result = match name {
+            "비루" => {
+                let result = self.conn.execute("INSERT INTO player(name, strength, sens, is_biru) VALUES(?, 1, 1, 1);", [&name]);
+                match result {
+                    Ok(_) => Some(200),
+                    Err(e) => {
+                        println!("{}", e);
+                        Some(400)
+                    }
+                }
+            }
+            "스노우맨" => Some(403),
+            "최일한" => Some(406),
+            _ => {
+                let result = self.conn.execute("INSERT INTO player(name, strength, sens, is_biru) VALUES(?, 1, 1, 0);", [&name]);
+                match result {
+                    Ok(_) => Some(200),
+                    Err(e) => {
+                        println!("{}", e);
+                        Some(400)
+                    }
+                }
+            }
+        };
+        result
+     }
+
+}
+
+#[tauri::command]
+fn name_check(name: &str) -> Option<i64>{
+    match name {
+        "스노우맨" => Some(403),
+        
+        _ => Some(200)
+    }
 }
 
 #[tauri::command]
@@ -90,12 +107,8 @@ fn delete_save(){
 }
 
 #[tauri::command]
-fn new_save(name: String) -> bool{
+fn new_save(name: String) -> Option<i16>{
     let db = DB::connect();
-    let save_is = db.expect("에러!").new_save(name);
-    if save_is == true {
-        true
-    } else {
-        false
-    }
+    let save_is = db.expect("에러!").new_save(&name);
+    save_is
 }
