@@ -6,7 +6,7 @@ fn main() {
     // dating_with_stupids_lib::run()
     tauri::Builder::default()
     // .invoke_handler(tauri::generate_handler![link])
-    .invoke_handler(tauri::generate_handler![close, new_save, delete_save, list_save])
+    .invoke_handler(tauri::generate_handler![close, new_save, delete_save, list_save, name_check])
     .run(tauri::generate_context!())
     .expect("failed to run app");
 }
@@ -45,7 +45,7 @@ impl DB {
 
     fn new_save(&mut self, name: &str) -> Option<i16> {
         let _player_init = self.conn.execute("
-            CREATE TABLE IF NOT EXISTS player(name TEXT NOT NULL, strength INTEGER DEFAULT 1, sens INTEGER DEFAULT 1, is_biru INTEGER DEFAULT 0);
+            CREATE TABLE IF NOT EXISTS player(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, strength INTEGER DEFAULT 1, sens INTEGER DEFAULT 1, is_biru INTEGER DEFAULT 0);
         ", []);
 
         let result = match name {
@@ -59,8 +59,6 @@ impl DB {
                     }
                 }
             }
-            "스노우맨" => Some(403),
-            "최일한" => Some(406),
             _ => {
                 let result = self.conn.execute("INSERT INTO player(name, strength, sens, is_biru) VALUES(?, 1, 1, 0);", [&name]);
                 match result {
@@ -81,7 +79,7 @@ impl DB {
 fn name_check(name: &str) -> Option<i64>{
     match name {
         "스노우맨" => Some(403),
-        
+        "최일한" => Some(406),
         _ => Some(200)
     }
 }

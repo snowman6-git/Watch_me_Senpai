@@ -5,8 +5,10 @@
 
     <input ref="player_name" class="clear_input">
     <br>
-    <Btn @click="save_name(this.$refs.player_name.value)" text="시작하기!"/>
-     <TextBox :text="message" @click="tbox_is_open = !tbox_is_open" v-show="tbox_is_open"/>
+    <Btn @click="name_check" text="시작하기!"/>
+    <br>
+    <Btn @click="new_save" v-show="tbox_is_open" text="네"/>
+    <TextBox :text="message" @click="tbox_is_open = !tbox_is_open" v-show="tbox_is_open"/>
 
 </main>
 </template>
@@ -29,8 +31,9 @@ export default{
   },
 
   methods: {
-    save_name(name: String){
-      invoke("new_save", { name : name }).then((info: any) => {
+    name_check(){
+      let name = this.$refs.player_name.value
+      invoke("name_check", { name : name }).then((info: any) => {
         if (info == 406) {
           this.message = "세상에 벌써 이스터에그를 찾았다니 축하합니다, 보상으로 선물을 드릴테니 집주소를 주세요, 농담아닙니다, 집주소 주세요, 달라고 야 어디가."
         } if(info == 403) {
@@ -41,8 +44,23 @@ export default{
           this.tbox_is_open = true
           console.log(info)
       })
-    }
+    },
 
+    new_save(){
+      invoke("new_save", { name : this.$refs.player_name.value }).then((info: any) => {
+        console.log(info)
+        switch(info) {
+          
+          case 200:
+            this.message = `플레이어를 정상적으로 생성했습니다!`
+            break
+          default:
+            this.message = `플레이어를 생성하는중 문제가 발생하였습니다, 개발자에게 문의하세요`
+            
+        }
+
+      })
+    }
   },
 
   data()
