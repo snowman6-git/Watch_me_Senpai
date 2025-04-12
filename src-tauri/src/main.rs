@@ -6,7 +6,7 @@ fn main() {
     // dating_with_stupids_lib::run()
     tauri::Builder::default()
     // .invoke_handler(tauri::generate_handler![link])
-    .invoke_handler(tauri::generate_handler![close, new_save, delete_save, list_save, name_check])
+    .invoke_handler(tauri::generate_handler![close, new_save, delete_save, name_check])
     .run(tauri::generate_context!())
     .expect("failed to run app");
 }
@@ -17,10 +17,17 @@ fn close() {
     process::exit(0); // 0은 성공적인 종료를 의미합니다. 다른 값을 사용하여 오류를 나타낼 수도 있습니다.
 }
 
-use rusqlite::{ffi::Error, Connection, Result};
+use rusqlite::{Connection, Result};
+use serde::{Serialize, Deserialize};
+use serde_json::json;
+
 
 struct DB {
     conn: Connection,
+}
+struct SavePreset {
+    id: i8,
+    name: String,
 }
 
 impl DB {
@@ -30,13 +37,17 @@ impl DB {
     }
 
     //나중에 에러처리 하기 , rusqlite::Error
-    fn list_save(&mut self) -> Result<i64> {
-        let mut stmt = self.conn.prepare("SELECT COUNT(*) FROM player")?;
-        let result = stmt.query_row([], |row| {
-            let value: i64 = row.get(0)?;
-            Ok(value)
+    fn list_save(&mut self) -> Result<(), rusqlite::Error> {
+        let mut stmt = self.conn.prepare("SELECT id, name FROM player")?;
+        let _save_list = stmt.query_map([], |row| {
+            let save_list_result = SavePreset {
+                id: row.get(0)?,
+                name: row.get(1)?,
+            };
+            println!("{}", save_list_result.id);
+            Ok(save_list_result)
         })?;
-        Ok(result)
+        Ok(())
     }
 
     fn delete_save(&mut self){
@@ -77,6 +88,7 @@ impl DB {
 
 #[tauri::command]
 fn name_check(name: &str) -> Option<i64>{
+    let name = name.trim(); //공백제거
     match name {
         "스노우맨" => Some(403),
         "최일한" => Some(406),
@@ -84,19 +96,26 @@ fn name_check(name: &str) -> Option<i64>{
     }
 }
 
-#[tauri::command]
-fn list_save() -> Option<i64> {
-    let db = DB::connect();
-    let list_save = db.expect("에러!").list_save();
-    
-    match list_save {
-        Ok(value) => Some(value),
-        Err(e) => {
-            println!("에러 발생: {:?}", e);
-            Some(0)
-        }
-    }
-}
+// #[tauri::command]
+// fn list_save() ->Result<(), rusqlite::Error>{
+    // let db = DB::connect();
+    // let list_save = db.expect("에러!").list_save();
+    // Some(list_sa ve)
+
+    // match list_save {
+    //     Ok(value) => {
+    //         Some(value)
+    //     },
+    //     Err(e) => {
+    //         println!("에러 발생: {:?}", e);
+    //         Some(400)
+    //     },
+    //     _ => {
+    //         println!("!!")
+        
+    //     }
+    // }
+// }
 
 #[tauri::command]
 fn delete_save(){

@@ -7,7 +7,7 @@
     </div>
 
     <div id="btn_case">
-      <Btn @click="list_save" text="이어하기"/>
+      <Btn @click="$router.push('/savelist')" text="이어하기"/>
       <Btn @click="$router.push('/newgame')" text="새로하기"/>
       <Btn text="갤러리"/>
       <Btn text="크레딧"/>
